@@ -11,18 +11,14 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
-type Entry = {
-  id: string;
-  type: "word" | "sentence";
-  text: string;
-  translation?: string;
-  status: "new" | "learning" | "longterm";
-};
+import { PALETTE } from "./src/theme";
+import { Entry } from "./src/types";
+import { VocabProvider, useVocab } from "./src/vocab";
 
 const TARGET_LANG_LABEL = "English (US)";
 
-// Demo-Daten
 const INITIAL_DATA: Entry[] = [
   { id: "1", type: "word", text: "table", translation: "Tisch", status: "new" },
   {
@@ -40,14 +36,6 @@ const INITIAL_DATA: Entry[] = [
     status: "new",
   },
 ];
-
-// Farbpalette – Klassisch Metallisch
-const PALETTE = {
-  blackSteel: "#080706",
-  paper: "#EFEFEF",
-  goldLeaf: "#D1B280",
-  silver: "#594D46",
-};
 
 function EntryCard({ item, onPress }: { item: Entry; onPress: () => void }) {
   return (
@@ -73,57 +61,90 @@ function EntryCard({ item, onPress }: { item: Entry; onPress: () => void }) {
 }
 
 function InboxScreen() {
-  const [items, setItems] = useState<Entry[]>(INITIAL_DATA);
+  const ctx = useVocab();
 
-  function addDummy() {
-    const id = Date.now().toString();
-    const newItem: Entry = {
-      id,
-      type: "word",
-      text: "coffee",
-      translation: "Kaffee",
-      status: "new",
-    };
-    setItems((prev) => [newItem, ...prev]);
-  }
-
-  function nextStatus(s: Entry["status"]): Entry["status"] {
-    return s === "new" ? "learning" : s === "learning" ? "longterm" : "new";
-  }
-
-  function cycleStatus(id: string) {
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id === id ? { ...it, status: nextStatus(it.status) } : it
-      )
-    );
-  }
-  // …
   return (
     <SafeAreaView style={styles.container}>
-      {/* … */}
+      <Text style={styles.title}>Inbox · {TARGET_LANG_LABEL}</Text>
       <FlatList
-        data={items}
+        data={ctx.items}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 96 }}
         renderItem={({ item }) => (
-          <EntryCard item={item} onPress={() => cycleStatus(item.id)} />
+          <EntryCard item={item} onPress={() => ctx.cycleStatus(item.id)} />
         )}
       />
-      {
-        <TouchableOpacity style={styles.fab} onPress={addDummy}>
-          <Text style={styles.fabText}>＋ Add word</Text>
-        </TouchableOpacity>
-      }
+      <TouchableOpacity style={styles.fab} onPress={ctx.addDummy}>
+        <Text style={styles.fabText}>＋ Add word</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
 function LearnScreen() {
+  const ctx = useVocab();
+  const pool = ctx.items;
+
+  const [i, setI] = useState(0);
+  const [show, setShow] = useState(false);
+  const item = pool[i];
+
+  function next() {
+    if (pool.length === 0) return;
+    setShow(false);
+    setI((prev) => (prev + 1) % pool.length);
+  }
+
+  if (!item) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.title}>Learn</Text>
+        <Text style={styles.subOnDark}>Keine Einträge.</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Learn</Text>
-      <Text style={styles.subOnDark}>Hier kommt später der Lernmodus.</Text>
+
+      <View style={[styles.card, { paddingVertical: 24 }]}>
+        <Text
+          style={{
+            color: PALETTE.blackSteel,
+            fontSize: 22,
+            fontWeight: "700",
+            marginBottom: 6,
+          }}
+        >
+          {item.text}
+        </Text>
+
+        {show ? (
+          <Text style={[styles.sub, { fontSize: 18 }]}>
+            {item.translation ?? "—"}
+          </Text>
+        ) : (
+          <Text style={[styles.sub, { fontStyle: "italic" }]}>
+            Tippe auf „Übersetzung zeigen“
+          </Text>
+        )}
+      </View>
+
+      <View style={styles.actionsRow}>
+        <TouchableOpacity
+          style={styles.btnSecondary}
+          onPress={() => setShow((s) => !s)}
+        >
+          <Text style={styles.btnText}>
+            {show ? "Ausblenden" : "Übersetzung zeigen"}
+          </Text>
+        </TouchableOpacity>
+        <View style={{ width: 12 }} />
+        <TouchableOpacity style={styles.btnPrimary} onPress={next}>
+          <Text style={styles.btnText}>Nächstes</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -142,38 +163,52 @@ const Tab = createBottomTabNavigator();
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={{
-            headerShown: false,
-            tabBarActiveTintColor: PALETTE.goldLeaf,
-            tabBarInactiveTintColor: PALETTE.silver,
-            tabBarStyle: {
-              backgroundColor: PALETTE.blackSteel,
-              borderTopColor: PALETTE.silver,
-            },
-          }}
-        >
-          <Tab.Screen name="Inbox" component={InboxScreen} />
-          <Tab.Screen name="Learn" component={LearnScreen} />
-          <Tab.Screen name="Settings" component={SettingsScreen} />
-        </Tab.Navigator>
-      </NavigationContainer>
-      <StatusBar style="light" />
+      <VocabProvider initialItems={INITIAL_DATA}>
+        <NavigationContainer>
+          <Tab.Navigator
+            screenOptions={({ route }) => ({
+              headerShown: false,
+              tabBarActiveTintColor: PALETTE.goldLeaf,
+              tabBarInactiveTintColor: PALETTE.silver,
+              tabBarStyle: {
+                backgroundColor: PALETTE.blackSteel,
+                borderTopColor: PALETTE.silver,
+              },
+              tabBarIcon: ({ color, size }) => {
+                const name =
+                  route.name === "Inbox"
+                    ? "book-outline"
+                    : route.name === "Learn"
+                    ? "school-outline"
+                    : "settings-outline";
+                return (
+                  <Ionicons
+                    name={name as any}
+                    size={size ?? 22}
+                    color={color}
+                  />
+                );
+              },
+            })}
+          >
+            <Tab.Screen name="Inbox" component={InboxScreen} />
+            <Tab.Screen name="Learn" component={LearnScreen} />
+            <Tab.Screen name="Settings" component={SettingsScreen} />
+          </Tab.Navigator>
+        </NavigationContainer>
+        <StatusBar style="light" />
+      </VocabProvider>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  // dunkler Hintergrund
   container: {
     flex: 1,
     backgroundColor: PALETTE.blackSteel,
     paddingTop: 48,
     paddingHorizontal: 16,
   },
-
-  // Überschrift hell + Akzent
   title: {
     color: PALETTE.paper,
     fontSize: 24,
@@ -181,7 +216,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  // Karte hell auf dunklem Hintergrund
   card: {
     backgroundColor: PALETTE.paper,
     borderRadius: 14,
@@ -190,14 +224,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: PALETTE.silver,
   },
-
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 6,
   },
 
-  // Badge (Typ)
   badge: {
     backgroundColor: PALETTE.goldLeaf,
     color: PALETTE.blackSteel,
@@ -208,7 +240,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Status-Badges
   status: {
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -222,11 +253,8 @@ const styles = StyleSheet.create({
     color: PALETTE.paper,
   },
 
-  // Textfarben auf Karte
   text: { color: PALETTE.blackSteel, fontSize: 18, marginBottom: 4 },
   sub: { color: PALETTE.silver, fontSize: 14 },
-
-  // Text auf dunklem Hintergrund
   subOnDark: { color: PALETTE.paper, fontSize: 14 },
 
   fab: {
@@ -243,4 +271,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
   fabText: { color: PALETTE.blackSteel, fontWeight: "700" },
+
+  actionsRow: { flexDirection: "row", alignItems: "center", marginTop: 8 },
+
+  btnPrimary: {
+    backgroundColor: PALETTE.goldLeaf,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  btnSecondary: {
+    backgroundColor: PALETTE.silver,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  btnText: { color: PALETTE.paper, fontWeight: "700" },
 });
