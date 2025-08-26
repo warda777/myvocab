@@ -1,7 +1,13 @@
 import "react-native-gesture-handler";
-import React from "react";
+import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -17,7 +23,7 @@ type Entry = {
 const TARGET_LANG_LABEL = "English (US)";
 
 // Demo-Daten
-const DATA: Entry[] = [
+const INITIAL_DATA: Entry[] = [
   { id: "1", type: "word", text: "table", translation: "Tisch", status: "new" },
   {
     id: "2",
@@ -43,9 +49,9 @@ const PALETTE = {
   silver: "#594D46",
 };
 
-function EntryCard({ item }: { item: Entry }) {
+function EntryCard({ item, onPress }: { item: Entry; onPress: () => void }) {
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.row}>
         <Text style={styles.badge}>
           {item.type === "word" ? "Wort" : "Satz"}
@@ -62,20 +68,53 @@ function EntryCard({ item }: { item: Entry }) {
       {item.translation ? (
         <Text style={styles.sub}>{item.translation}</Text>
       ) : null}
-    </View>
+    </TouchableOpacity>
   );
 }
 
 function InboxScreen() {
+  const [items, setItems] = useState<Entry[]>(INITIAL_DATA);
+
+  function addDummy() {
+    const id = Date.now().toString();
+    const newItem: Entry = {
+      id,
+      type: "word",
+      text: "coffee",
+      translation: "Kaffee",
+      status: "new",
+    };
+    setItems((prev) => [newItem, ...prev]);
+  }
+
+  function nextStatus(s: Entry["status"]): Entry["status"] {
+    return s === "new" ? "learning" : s === "learning" ? "longterm" : "new";
+  }
+
+  function cycleStatus(id: string) {
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === id ? { ...it, status: nextStatus(it.status) } : it
+      )
+    );
+  }
+  // …
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Inbox · {TARGET_LANG_LABEL}</Text>
+      {/* … */}
       <FlatList
-        data={DATA}
+        data={items}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        renderItem={({ item }) => <EntryCard item={item} />}
+        contentContainerStyle={{ paddingBottom: 96 }}
+        renderItem={({ item }) => (
+          <EntryCard item={item} onPress={() => cycleStatus(item.id)} />
+        )}
       />
+      {
+        <TouchableOpacity style={styles.fab} onPress={addDummy}>
+          <Text style={styles.fabText}>＋ Add word</Text>
+        </TouchableOpacity>
+      }
     </SafeAreaView>
   );
 }
@@ -189,4 +228,19 @@ const styles = StyleSheet.create({
 
   // Text auf dunklem Hintergrund
   subOnDark: { color: PALETTE.paper, fontSize: 14 },
+
+  fab: {
+    position: "absolute",
+    right: 16,
+    bottom: 24,
+    backgroundColor: PALETTE.goldLeaf,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 28,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  fabText: { color: PALETTE.blackSteel, fontWeight: "700" },
 });
