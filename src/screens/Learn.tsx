@@ -2,10 +2,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 import { PALETTE } from "../theme";
 import { useVocab } from "../vocab";
 
 export default function LearnScreen() {
+  const { t } = useTranslation();
   const ctx = useVocab();
   const pool = ctx.items; // später: z. B. nur "new"
 
@@ -22,35 +24,51 @@ export default function LearnScreen() {
   if (!item) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>Learn</Text>
-        <Text style={styles.subOnDark}>Keine Einträge.</Text>
+        <Text style={styles.title}>{t("learn.title")}</Text>
+        <Text style={styles.subOnDark}>{t("learn.empty")}</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Learn</Text>
+      <Text style={styles.title}>{t("learn.title")}</Text>
 
       <View style={[styles.card, { paddingVertical: 24 }]}>
-        <Text style={{ color: PALETTE.blackSteel, fontSize: 22, fontWeight: "700", marginBottom: 6 }}>
+        <Text
+          style={{
+            color: PALETTE.blackSteel,
+            fontSize: 22,
+            fontWeight: "700",
+            marginBottom: 6,
+          }}
+        >
           {item.text}
         </Text>
 
         {show ? (
-          <Text style={[styles.sub, { fontSize: 18 }]}>{item.translation ?? "—"}</Text>
+          <Text style={[styles.sub, { fontSize: 18 }]}>
+            {item.translation ?? "—"}
+          </Text>
         ) : (
-          <Text style={[styles.sub, { fontStyle: "italic" }]}>Tippe auf „Übersetzung zeigen“</Text>
+          <Text style={[styles.sub, { fontStyle: "italic" }]}>
+            {t("learn.hint")}
+          </Text>
         )}
       </View>
 
       <View style={styles.actionsRow}>
-        <TouchableOpacity style={styles.btnSecondary} onPress={() => setShow((s) => !s)}>
-          <Text style={styles.btnText}>{show ? "Ausblenden" : "Übersetzung zeigen"}</Text>
+        <TouchableOpacity
+          style={styles.btnSecondary}
+          onPress={() => setShow((s) => !s)}
+        >
+          <Text style={styles.btnText}>
+            {show ? t("learn.hide") : t("learn.show")}
+          </Text>
         </TouchableOpacity>
         <View style={{ width: 12 }} />
         <TouchableOpacity style={styles.btnPrimary} onPress={next}>
-          <Text style={styles.btnText}>Nächstes</Text>
+          <Text style={styles.btnText}>{t("learn.next")}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -58,8 +76,18 @@ export default function LearnScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: PALETTE.blackSteel, paddingTop: 48, paddingHorizontal: 16 },
-  title: { color: PALETTE.paper, fontSize: 24, fontWeight: "700", marginBottom: 12 },
+  container: {
+    flex: 1,
+    backgroundColor: PALETTE.blackSteel,
+    paddingTop: 48,
+    paddingHorizontal: 16,
+  },
+  title: {
+    color: PALETTE.paper,
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
 
   card: {
     backgroundColor: PALETTE.paper,

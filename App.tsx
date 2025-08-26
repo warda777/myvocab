@@ -13,6 +13,13 @@ import { VocabProvider } from "./src/vocab";
 import InboxScreen from "./src/screens/Inbox";
 import LearnScreen from "./src/screens/Learn";
 import SettingsScreen from "./src/screens/Settings";
+import "./src/i18n"; // init i18next (DE/ES/EN …)
+import { useTranslation } from "react-i18next";
+
+function TabLabel({ tKey }: { tKey: string }) {
+  const { t } = useTranslation();
+  return <Text>{t(tKey)}</Text>;
+}
 
 const INITIAL_DATA: Entry[] = [
   { id: "1", type: "word", text: "table", translation: "Tisch", status: "new" },
@@ -42,6 +49,7 @@ export default function App() {
           <Tab.Navigator
             screenOptions={({ route }) => ({
               headerShown: false,
+              tabBarShowLabel: false, // ← Labels ausblenden (nur Icons)
               tabBarActiveTintColor: PALETTE.goldLeaf,
               tabBarInactiveTintColor: PALETTE.silver,
               tabBarStyle: {
@@ -65,9 +73,21 @@ export default function App() {
               },
             })}
           >
-            <Tab.Screen name="Inbox" component={InboxScreen} />
-            <Tab.Screen name="Learn" component={LearnScreen} />
-            <Tab.Screen name="Settings" component={SettingsScreen} />
+            <Tab.Screen
+              name="Inbox"
+              component={InboxScreen}
+              options={{ tabBarLabel: () => <TabLabel tKey="tabs.inbox" /> }}
+            />
+            <Tab.Screen
+              name="Learn"
+              component={LearnScreen}
+              options={{ tabBarLabel: () => <TabLabel tKey="tabs.learn" /> }}
+            />
+            <Tab.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{ tabBarLabel: () => <TabLabel tKey="tabs.settings" /> }}
+            />
           </Tab.Navigator>
         </NavigationContainer>
         <StatusBar style="light" />
