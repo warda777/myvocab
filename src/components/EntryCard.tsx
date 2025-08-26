@@ -1,0 +1,53 @@
+// src/components/EntryCard.tsx
+import React from "react";
+import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { PALETTE } from "../theme";
+import { Entry } from "../types";
+
+export default function EntryCard({
+  item,
+  onPress,
+}: {
+  item: Entry;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
+      <View style={styles.row}>
+        <Text style={styles.badge}>{item.type === "word" ? "Wort" : "Satz"}</Text>
+        <Text style={[styles.status, styles[`status_${item.status}` as const]]}>
+          {item.status === "new" ? "Neu" : item.status === "learning" ? "Lernen" : "Langzeit"}
+        </Text>
+      </View>
+      <Text style={styles.text}>{item.text}</Text>
+      {item.translation ? <Text style={styles.sub}>{item.translation}</Text> : null}
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: PALETTE.paper,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: PALETTE.silver,
+  },
+  row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  badge: {
+    backgroundColor: PALETTE.goldLeaf,
+    color: PALETTE.blackSteel,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  status: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, fontSize: 12 },
+  status_new: { backgroundColor: PALETTE.goldLeaf, color: PALETTE.blackSteel },
+  status_learning: { backgroundColor: PALETTE.silver, color: PALETTE.paper },
+  status_longterm: { backgroundColor: PALETTE.blackSteel, color: PALETTE.paper },
+  text: { color: PALETTE.blackSteel, fontSize: 18, marginBottom: 4 },
+  sub: { color: PALETTE.silver, fontSize: 14 },
+});
