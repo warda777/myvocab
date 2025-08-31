@@ -5,7 +5,10 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import type { ComponentProps } from "react";
+type IconName = ComponentProps<typeof Ionicons>["name"];
+import { supabase, ensureSignedIn } from "./src/supabaseClient";
 
 import { PALETTE } from "./src/theme";
 import { Entry } from "./src/types";
@@ -15,6 +18,7 @@ import LearnScreen from "./src/screens/Learn";
 import SettingsScreen from "./src/screens/Settings";
 import "./src/i18n"; // init i18next (DE/ES/EN …)
 import { useTranslation } from "react-i18next";
+import Search from "./src/screens/Search";
 
 function TabLabel({ tKey }: { tKey: string }) {
   const { t } = useTranslation();
@@ -57,19 +61,15 @@ export default function App() {
                 borderTopColor: PALETTE.silver,
               },
               tabBarIcon: ({ color, size }) => {
-                const name =
-                  route.name === "Inbox"
-                    ? "book-outline"
-                    : route.name === "Learn"
-                    ? "school-outline"
-                    : "settings-outline";
-                return (
-                  <Ionicons
-                    name={name as any}
-                    size={size ?? 22}
-                    color={color}
-                  />
-                );
+                let icon: IconName; // <— statt string
+
+                if (route.name === "Inbox") icon = "book-outline";
+                else if (route.name === "Learn") icon = "school-outline";
+                else if (route.name === "Settings") icon = "settings-outline";
+                else if (route.name === "Search") icon = "search-outline";
+                else icon = "ellipse-outline";
+
+                return <Ionicons name={icon} size={size} color={color} />;
               },
             })}
           >
@@ -88,6 +88,7 @@ export default function App() {
               component={SettingsScreen}
               options={{ tabBarLabel: () => <TabLabel tKey="tabs.settings" /> }}
             />
+            <Tab.Screen name="Search" component={Search} />
           </Tab.Navigator>
         </NavigationContainer>
         <StatusBar style="light" />

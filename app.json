@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "myVocab",
-    "slug": "myVocab",
+    "name": "myVoCabin",
+    "slug": "myVoCabin",
+    "scheme": "myvocabin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,20 +14,23 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.warda777.myVoCabin"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.warda777.myVoCabin"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-localization"
+      "expo-localization",
+      "expo-share-extension"
     ]
   }
 }

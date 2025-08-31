@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>myVocab – Anmeldung</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    .card { max-width: 520px; border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
+    label { display:block; margin: 10px 0 4px; }
+    input { width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; }
+    button { margin-top:16px; padding:10px 14px; border:0; border-radius:10px; cursor:pointer; }
+    .save { background:#111; color:#fff; }
+    .clear { background:#eee; color:#333; margin-left:8px; }
+    .row { display:flex; gap:8px; align-items:center; }
+    .muted { color:#666; font-size:12px; margin-top:8px; }
+    .ok { color: #0a7a2d; }
+    .err { color: #9b1c1c; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>myVocab – Anmeldung</h2>
+    <p class="muted">Die Extension speichert dein Supabase Login lokal, holt ein Access-Token und sendet Markierungen an die Edge Function.</p>
+
+    <label for="email">E-Mail</label>
+    <input id="email" type="email" placeholder="dein@email.tld" />
+
+    <label for="password">Passwort</label>
+    <input id="password" type="password" placeholder="••••••••" />
+
+    <div class="row">
+      <button class="save" id="save">Speichern</button>
+      <button class="clear" id="clear">Tokens löschen</button>
+    </div>
+
+    <p id="status" class="muted"></p>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

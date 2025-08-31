@@ -3,7 +3,6 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import * as Localization from "expo-localization";
 
-// Gerätesprache holen (z. B. "de-DE" -> "de")
 const deviceLang = (
   Localization.getLocales?.()[0]?.languageTag?.split("-")[0] ?? "en"
 ).toLowerCase();
@@ -13,8 +12,9 @@ const resources = {
     translation: {
       tabs: { inbox: "Inbox", learn: "Learn", settings: "Settings" },
       inbox: {
-        searchPlaceholder: "Search…",
+        tags: { all: "All tags" }, // EN
         title: "Inbox · {{lang}}",
+        searchPlaceholder: "Search…",
         filters: {
           all: "All",
           new: "New",
@@ -26,6 +26,17 @@ const resources = {
         },
         empty: "No entries in the current filter.",
         add: "＋ Add word",
+        addDialog: {
+          title: "Add entry",
+          textLabel: "Text",
+          translationLabel: "Translation (optional)",
+          textPh: "e.g. order",
+          translationPh: "e.g. Bestellung",
+          cancel: "Cancel",
+          save: "Save",
+          tagsLabel: "Tags (comma-separated)",
+          tagsPh: "e.g. travel, restaurant",
+        },
       },
       learn: {
         title: "Learn",
@@ -35,15 +46,20 @@ const resources = {
         hint: "Tap “Show translation”",
         empty: "No entries.",
       },
-      settings: { title: "Settings" },
+      settings: {
+        title: "Settings",
+        language: "Language",
+        note: "Note: Titles update immediately. Tab texts may update after reopening — we’ll improve that.",
+      },
     },
   },
   de: {
     translation: {
       tabs: { inbox: "Inbox", learn: "Lernen", settings: "Einstellungen" },
       inbox: {
-        searchPlaceholder: "Suche…",
+        tags: { all: "Alle Tags" }, // DE
         title: "Inbox · {{lang}}",
+        searchPlaceholder: "Suche…",
         filters: {
           all: "Alle",
           new: "Neu",
@@ -55,6 +71,17 @@ const resources = {
         },
         empty: "Keine Einträge im aktuellen Filter.",
         add: "＋ Wort hinzufügen",
+        addDialog: {
+          title: "Eintrag hinzufügen",
+          textLabel: "Text",
+          translationLabel: "Übersetzung (optional)",
+          textPh: "z. B. bestellen",
+          translationPh: "z. B. order",
+          cancel: "Abbrechen",
+          save: "Speichern",
+          tagsLabel: "Tags (kommagetrennt)",
+          tagsPh: "z. B. Reisen, Restaurant",
+        },
       },
       learn: {
         title: "Lernen",
@@ -64,15 +91,20 @@ const resources = {
         hint: "Tippe auf „Übersetzung zeigen“",
         empty: "Keine Einträge.",
       },
-      settings: { title: "Einstellungen" },
+      settings: {
+        title: "Einstellungen",
+        language: "Sprache",
+        note: "Hinweis: Titel aktualisieren sofort. Tab-Texte können sich erst nach erneutem Öffnen aktualisieren – das verbessern wir noch.",
+      },
     },
   },
   es: {
     translation: {
       tabs: { inbox: "Bandeja", learn: "Aprender", settings: "Ajustes" },
       inbox: {
-        searchPlaceholder: "Buscar…",
+        tags: { all: "Todas las etiquetas" }, // ES
         title: "Bandeja · {{lang}}",
+        searchPlaceholder: "Buscar…",
         filters: {
           all: "Todos",
           new: "Nuevo",
@@ -84,6 +116,17 @@ const resources = {
         },
         empty: "No hay elementos en el filtro actual.",
         add: "＋ Añadir palabra",
+        addDialog: {
+          title: "Añadir elemento",
+          textLabel: "Texto",
+          translationLabel: "Traducción (opcional)",
+          textPh: "p. ej., ordenar",
+          translationPh: "p. ej., pedido",
+          cancel: "Cancelar",
+          save: "Guardar",
+          tagsLabel: "Etiquetas (separadas por comas)",
+          tagsPh: "p. ej., viaje, restaurante",
+        },
       },
       learn: {
         title: "Aprender",
@@ -93,7 +136,11 @@ const resources = {
         hint: "Toca “Mostrar traducción”",
         empty: "No hay elementos.",
       },
-      settings: { title: "Ajustes" },
+      settings: {
+        title: "Ajustes",
+        language: "Idioma",
+        note: "Nota: Los títulos se actualizan al instante. Los textos de pestañas pueden actualizarse al reabrir — lo mejoraremos.",
+      },
     },
   },
 } as const;
@@ -101,13 +148,11 @@ const resources = {
 i18n
   .use(initReactI18next)
   .init({
-    lng: deviceLang, // Gerätesprache verwenden
-    fallbackLng: "en", // Fallback: Englisch
+    lng: deviceLang,
+    fallbackLng: "en",
     resources,
     interpolation: { escapeValue: false },
   })
-  .catch(() => {
-    /* noop */
-  });
+  .catch(() => {});
 
 export default i18n;

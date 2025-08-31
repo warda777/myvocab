@@ -1,6 +1,6 @@
 // src/vocab.tsx
 import React, { createContext, useContext, useMemo, useState } from "react";
-import type { Entry, VocabContextType } from "./types";
+import type { Entry, VocabContextType, AddEntryPayload } from "./types";
 
 const VocabContext = createContext<VocabContextType | undefined>(undefined);
 
@@ -19,23 +19,39 @@ export function VocabProvider({
 
   function cycleStatus(id: string) {
     setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, status: nextStatus(it.status) } : it))
+      prev.map((it) =>
+        it.id === id ? { ...it, status: nextStatus(it.status) } : it
+      )
     );
   }
+
   function addDummy() {
+    addEntry({ type: "word", text: "coffee", translation: "Kaffee" });
+  }
+
+  function addEntry(payload: AddEntryPayload) {
     const id = Date.now().toString();
+    const status: Entry["status"] = payload.status ?? "new";
+    const tags = (payload.tags ?? []).map((t) => t.trim()).filter(Boolean);
     const newItem: Entry = {
       id,
-      type: "word",
-      text: "coffee",
-      translation: "Kaffee",
-      status: "new",
+      type: payload.type,
+      text: payload.text,
+      translation: payload.translation,
+      status,
+      tags,
     };
     setItems((prev) => [newItem, ...prev]);
   }
 
-  const value = useMemo<VocabContextType>(() => ({ items, addDummy, cycleStatus }), [items]);
-  return <VocabContext.Provider value={value}>{children}</VocabContext.Provider>;
+  const value = useMemo<VocabContextType>(
+    () => ({ items, addDummy, addEntry, cycleStatus }),
+    [items]
+  );
+
+  return (
+    <VocabContext.Provider value={value}>{children}</VocabContext.Provider>
+  );
 }
 
 export function useVocab(): VocabContextType {

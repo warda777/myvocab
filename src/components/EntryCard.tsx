@@ -23,7 +23,7 @@ export default function EntryCard({
 
   const typeLabel =
     item.type === "word"
-      ? t("inbox.filters.word") // nutzt die vorhandenen Schlüssel
+      ? t("inbox.filters.word")
       : t("inbox.filters.sentence");
 
   return (
@@ -34,9 +34,21 @@ export default function EntryCard({
           {statusLabel}
         </Text>
       </View>
+
       <Text style={styles.text}>{item.text}</Text>
       {item.translation ? (
         <Text style={styles.sub}>{item.translation}</Text>
+      ) : null}
+
+      {/* Tags (optional) */}
+      {item.tags && item.tags.length > 0 ? (
+        <View style={styles.tagsRow}>
+          {item.tags.map((tg) => (
+            <View key={tg} style={styles.tagChip}>
+              <Text style={styles.tagText}>{tg}</Text>
+            </View>
+          ))}
+        </View>
       ) : null}
     </TouchableOpacity>
   );
@@ -56,6 +68,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 6,
   },
+
   badge: {
     backgroundColor: PALETTE.goldLeaf,
     color: PALETTE.blackSteel,
@@ -65,6 +78,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
+
   status: {
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -77,6 +91,21 @@ const styles = StyleSheet.create({
     backgroundColor: PALETTE.blackSteel,
     color: PALETTE.paper,
   },
+
   text: { color: PALETTE.blackSteel, fontSize: 18, marginBottom: 4 },
   sub: { color: PALETTE.silver, fontSize: 14 },
+
+  // Tags
+  tagsRow: { flexDirection: "row", flexWrap: "wrap", marginTop: 8 },
+  tagChip: {
+    borderColor: PALETTE.silver,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginRight: 6,
+    marginBottom: 6,
+    backgroundColor: "transparent",
+  },
+  tagText: { color: PALETTE.blackSteel, fontSize: 12, fontWeight: "600" },
 });

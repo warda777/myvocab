@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "myVocab – Add selection",
+  "version": "0.1.0",
+  "description": "Markiertes Wort an Supabase senden",
+  "permissions": ["contextMenus", "storage"],
+  "host_permissions": ["https://naplllscmpqexahxtbwg.supabase.co/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}
